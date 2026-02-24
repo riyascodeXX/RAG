@@ -1,0 +1,273 @@
+/* Full page hero */
+.homepage {
+  min-height: 100%;              /* Full screen height */
+  background-color: black;       /* Pure black background */
+  color: #fff;                   /* White text */
+  display: flex;
+  align-items: center;           /* Vertically center */
+  padding: 0 80px;
+  font-family: 'Inter', sans-serif;
+  /* margin-top: 10%; */
+
+  /*media query */  
+@media screen and (max-width:1024px){
+  flex-direction:column;
+  gap:0;
+}
+
+}
+
+/* Left content */
+.left {
+  max-width: 800px;
+}
+
+/* Date + Product line */
+.meta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.meta h6 {
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+
+  
+}
+
+
+.meta p {
+  font-size: 14px;
+  color: #9ca3af; /* Light gray */
+}
+
+/* Main heading */
+.left h1 {
+  font-size: 60px;        /* Big bold heading */
+  font-weight: 700;
+  line-height: 1.1;
+  
+  
+}
+
+.h2tag {
+  font-size: 60px;        /* Big bold heading */
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 40px;
+  background: linear-gradient(to right, #217bfe, #e55571);
+  background-clip: text;
+  --webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Quote */
+.quote {
+  font-weight: 400;
+  max-width: 70%;
+  font-weight: bold;
+}
+
+/* Button + link */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 25px;
+}
+
+/* Primary button */
+.primary-btn {
+  background-color: #217bfe;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 999px;   /* Full rounded */
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background-color: white;
+  color: #217bfe;
+}
+
+/* Secondary text link */
+.secondary-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: #ffffff;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.secondary-link:hover {
+  opacity: 1;
+}
+
+.bottom-bar {
+  display: flex;
+  align-items: center;
+  gap: 80%;
+  margin-top: 70px;
+}
+
+.share-btn:hover {
+  opacity: 0.85;
+  color: rgb(7, 82, 194);
+  cursor: pointer;
+}
+
+.play-btn:hover {
+  opacity: 0.85;
+}
+
+/* commet design image */
+.design {
+  position: absolute;
+  pointer-events: none;
+  bottom:10;
+  left: 0;
+}
+.right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  position: relative;
+  height: 100%;
+
+  .clgimg{
+    
+    width: 70%;
+    height: 100%;
+    
+  }
+
+  .chat{
+   position: absolute;
+   bottom: -30;
+   right: -50;
+   display: flex;
+   align-items: center;
+   gap:10px;
+   padding:5px;
+   background-color:black;
+   color:white;
+   border-radius: 10px;
+   margin-top: 48%;
+   font-weight: 400px;
+   font-size: 8px;
+
+   
+   img{
+    width:32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+
+
+       }
+   }
+  }
+
+
+
+
+
+
+
+  /* responsive adjustments */
+
+@media (max-width: 414px) {
+
+  .homepage {
+    flex-direction: column;
+    padding: 20px;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  .left {
+    max-width: 100%;
+  }
+
+  .meta {
+    margin-bottom: 16px;
+  }
+
+  .meta h6,
+  .meta p {
+    font-size: 12px;
+  }
+
+  .left h1,
+  .h2tag {
+    font-size: 36px;
+    line-height: 1.2;
+  }
+
+  .quote {
+    max-width: 100%;
+    font-size: 14px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .primary-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  .secondary-link {
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  .bottom-bar {
+    margin-top: 30px;
+    gap: 24px;
+  }
+
+  /* RIGHT SECTION */
+  .right {
+    width: 100%;
+    justify-content: center;
+    margin-top: 30px;
+    height: auto;
+  }
+
+  .clgimg {
+    width: 100%;
+    height: auto;
+  }
+
+  /* CHAT BUBBLE */
+  .chat {
+    position: static;
+    margin-top: 12px;
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+
+  .chat img {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* COMMENT DESIGN (SVG) */
+  .design {
+    display: none; /* mobile clean look */
+}
+}
+

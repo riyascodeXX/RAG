@@ -1,0 +1,55 @@
+/* Form Container */
+.endchat{
+    margin-top: 100px;
+    padding-bottom:350px;
+}
+.formcontain{
+ 
+  margin-left: 30px;
+}
+
+/* Input + Button */
+.formcontain form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chaticon span{
+  padding: 15px;
+}
+
+
+.formcontain .chaticon{
+  background-color: white;
+  color:black;
+  border-radius: 20px;  
+  font-size: 23px;
+
+  
+}
+
+.formcontain input {
+  width: 600px;
+  padding: 12px 0px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 20px;
+
+}
+
+.formcontain button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.formcontain button:hover {
+  background-color:white;
+  color: #2563eb;
+}

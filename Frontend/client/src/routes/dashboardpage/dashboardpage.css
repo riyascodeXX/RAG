@@ -1,0 +1,85 @@
+
+.dashboardpage {
+  min-height: 100vh;
+  
+}
+
+/* Logo Page */
+.logopage {
+  display: flex;
+  flex-direction: column;
+  margin-left: 200px;
+  margin-top: 130px;
+}
+
+/* Logo Section */
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+/* Text animation span */
+.logo span {
+  margin-left: 15px;
+  font-size: 12px;
+  color: white;
+}
+
+/* Logo Image */
+.logo img {
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+}
+
+/* Form Container */
+.formcontainer {
+  margin-top: 280px;
+}
+
+/* Input + Button */
+.formcontainer form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chatbar span{
+  padding: 15px;
+}
+
+.formcontainer .chatbar{
+  background-color: white;
+  color:black;
+  border-radius: 20px;  
+  font-size: 23px;
+
+  
+}
+
+.formcontainer input {
+  width: 600px;
+  padding: 12px 0px;
+  border-radius: 20px;
+  border: none;
+  outline: none;
+  font-size: 20px;
+
+}
+
+.formcontainer button {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px 14px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.formcontainer button:hover {
+  background-color:white;
+  color: #2563eb;
+}
+
+    

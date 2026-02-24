@@ -1,0 +1,16 @@
+# Node
+node_modules/
+dist/
+build/
+
+# Environment
+.env
+Frontend/backclient/.env
+Frontend/client/.env
+
+# Logs
+npm-debug.log*
+
+# OS
+.desktop.ini
+.DS_Store
