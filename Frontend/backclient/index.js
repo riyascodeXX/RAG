@@ -17,14 +17,11 @@ const app = express();
 
 
 
-app.use(cors({
-  origin: "https://rag-coral-nine.vercel.app",
-  credentials: true
-}));
+
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, "https://rag-coral-nine.vercel.app"],
     credentials: true,
   })
 );
