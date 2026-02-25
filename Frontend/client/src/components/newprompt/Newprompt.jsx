@@ -20,7 +20,7 @@ const Newprompt = ({ data }) => {
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [data,question, answer, history]);
+  }, [history]);
 
   // Initialize history from props
   useEffect(() => {

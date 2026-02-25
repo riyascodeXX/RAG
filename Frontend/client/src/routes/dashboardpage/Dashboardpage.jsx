@@ -66,7 +66,7 @@ const navigate = useNavigate();
   if (!text || mutation.isPending) return;
 
   mutation.mutate(text)
-      
+      e.target.reset()
   };
   return (
    <div className='dashboardpage'>
@@ -99,7 +99,7 @@ const navigate = useNavigate();
           <div className="chatbar">
           <span className='plus'><GrAdd /></span>
           <input type="text" name='text' placeholder='Ask me anything...' disabled={!isLoaded || mutation.isPending} /></div>
-          <button disabled={!isLoaded || mutation.isPending}><FaCircleArrowUp /> </button>
+          <button type="submit" disabled={!isLoaded || mutation.isPending}><FaCircleArrowUp /> </button>
         </form>
         {mutation.error && <p className="error-message">{mutation.error.message}</p>}
       </div>
