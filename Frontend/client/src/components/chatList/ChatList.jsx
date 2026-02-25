@@ -2,13 +2,21 @@ import {Link}from 'react-router-dom'
 import './chatList.css'
 import { useQuery } from '@tanstack/react-query'
 import { apiUrl } from '../../lib/api'
+import { useAuth } from '@clerk/clerk-react'
 
 const ChatList = () => {
+  const { getToken } = useAuth();
 
  const { isPending, error, data } = useQuery({
     queryKey: ['userChats'],
     queryFn: async () => {
-      const res = await fetch(apiUrl("/api/userchats"), { credentials: "include" });
+      const token = await getToken();
+      const res = await fetch(apiUrl("/api/userchats"), {
+        credentials: "include",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
       let payload = null;
 
       try {

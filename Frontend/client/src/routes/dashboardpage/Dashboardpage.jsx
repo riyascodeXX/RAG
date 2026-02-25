@@ -5,25 +5,46 @@ import './dashboardpage.css'
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiUrl } from '../../lib/api';
+import { useAuth } from '@clerk/clerk-react';
 
 
 const Dashboardpage = () => {
 
 const queryClient = useQueryClient()
+const { getToken } = useAuth();
 
 const navigate = useNavigate();
 
 // Mutations
   const mutation = useMutation({
-    mutationFn: (text) => {
-      return fetch(apiUrl("/api/chats"), {
+    mutationFn: async (text) => {
+      const token = await getToken();
+      const res = await fetch(apiUrl("/api/chats"), {
         method: 'POST',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ text }),
-      }).then((res) => res.json());
+      });
+
+      let payload = null;
+      try {
+        payload = await res.json();
+      } catch (_err) {
+        payload = null;
+      }
+
+      if (!res.ok) {
+        const message =
+          payload && typeof payload === "object" && "message" in payload
+            ? payload.message
+            : `Failed to create chat (${res.status})`;
+        throw new Error(message);
+      }
+
+      return payload;
     },
     onSuccess: (data) => {
       // server returns { id: savedId }

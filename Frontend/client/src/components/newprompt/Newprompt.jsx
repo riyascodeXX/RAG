@@ -7,6 +7,7 @@ import generateResponse from "../../lib/gemini";
 import Markdown from 'react-markdown'
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiUrl } from "../../lib/api";
+import { useAuth } from "@clerk/clerk-react";
 const Newprompt = ({ data }) => {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
@@ -36,18 +37,38 @@ const Newprompt = ({ data }) => {
   }, [data]);
 
   const queryClient = useQueryClient();
+  const { getToken } = useAuth();
 
 // Mutations
   const mutation = useMutation({
-    mutationFn: ({ question: q, answer: a }) => {
-      return fetch(apiUrl(`/api/chats/${data._id}`), {
+    mutationFn: async ({ question: q, answer: a }) => {
+      const token = await getToken();
+      const res = await fetch(apiUrl(`/api/chats/${data._id}`), {
         method: 'PUT',
         credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ question: q ? q : undefined, answer: a }),
-      }).then((res) => res.json());
+      });
+
+      let payload = null;
+      try {
+        payload = await res.json();
+      } catch (_err) {
+        payload = null;
+      }
+
+      if (!res.ok) {
+        const message =
+          payload && typeof payload === "object" && "message" in payload
+            ? payload.message
+            : `Failed to save chat (${res.status})`;
+        throw new Error(message);
+      }
+
+      return payload;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat', data._id] });
@@ -97,7 +118,7 @@ const Newprompt = ({ data }) => {
 
     } catch (err) {
       console.log(err);
-      setError('Failed to generate response');
+      setError(err?.message || 'Failed to generate response');
       setHistory(prev => prev.map((item, index) => 
         index === prev.length - 1 ? { ...item, answer: "Error: Failed to generate response" } : item
       ));

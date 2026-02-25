@@ -106,7 +106,7 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
     return res.status(201).json({ id: savedChat._id });
   } catch (err) {
     console.log(err)
-    res.status(500).send("Error creating chat")
+    res.status(500).json({ message: "Error creating chat" })
   }
 })
 
@@ -115,7 +115,7 @@ app.post("/api/chats", requireAuth(), async (req, res) => {
 app.get("/api/userchats", requireAuth(), async (req, res) => {
   const userId = req.auth && req.auth.userId;
 
-  if (!userId) return res.status(401).send("Unauthenticated");
+  if (!userId) return res.status(401).json({ message: "Unauthenticated" });
 
   try {
     const doc = await Userchat.findOne({ userId });
@@ -123,7 +123,7 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
     res.status(200).json(chats);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error fetching userchats!");
+    res.status(500).json({ message: "Error fetching userchats!" });
   }
 });
 
@@ -131,15 +131,15 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
 app.get("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth && req.auth.userId;
 
-  if (!userId) return res.status(401).send("Unauthenticated");
+  if (!userId) return res.status(401).json({ message: "Unauthenticated" });
 
   try {
     const chat = await Chat.findOne({ _id: req.params.id, userId });
-    if (!chat) return res.status(404).send("Chat not found");
+    if (!chat) return res.status(404).json({ message: "Chat not found" });
     res.status(200).json(chat);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error fetching user chats");
+    res.status(500).json({ message: "Error fetching user chats" });
   }
 });
 
@@ -147,7 +147,7 @@ app.put("/api/chats/:id", requireAuth(), async (req, res) => {
   const userId = req.auth && req.auth.userId;
   const { question, answer } = req.body;
 
-  if (!userId) return res.status(401).send("Unauthenticated");
+  if (!userId) return res.status(401).json({ message: "Unauthenticated" });
 
   const newItems = [
     ...(question ? [{ role: "user", parts: [{ text: question }] }] : []),
@@ -168,14 +168,21 @@ app.put("/api/chats/:id", requireAuth(), async (req, res) => {
     res.status(200).json(updatedChat);
   } catch (err) {
     console.log(err);
-    res.status(500).send("Error adding conversation");
+    res.status(500).json({ message: "Error adding conversation" });
   }
 });
 
 
-app.use((err,req,res,next)=>{
-    console.log(err.stack)
-    res.status(401).send("unauthenticated");
+app.use((err, req, res, next) => {
+  console.log(err.stack);
+
+  if (err?.message?.startsWith("CORS blocked")) {
+    return res.status(403).json({ message: err.message });
+  }
+
+  const statusCode = err?.statusCode || err?.status || 500;
+  const message = err?.message || "Internal server error";
+  return res.status(statusCode).json({ message });
 });
 
 app.listen(PORT, () => {

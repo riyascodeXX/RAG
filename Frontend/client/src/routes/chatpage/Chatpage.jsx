@@ -5,7 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import Markdown from 'react-markdown';
 import { apiUrl } from '../../lib/api';
+import { useAuth } from '@clerk/clerk-react';
 const Chatpage = () => {
+const { getToken } = useAuth();
   
 const path=useLocation().pathname
 const chatId=path.split("/").pop()
@@ -14,8 +16,12 @@ const chatId=path.split("/").pop()
 const { isPending, error, data } = useQuery({
     queryKey: ['chat',chatId],
     queryFn: async () => {
+      const token = await getToken();
       const res = await fetch(apiUrl(`/api/chats/${chatId}`), {
         credentials: "include",
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
       });
       let payload = null;
 
