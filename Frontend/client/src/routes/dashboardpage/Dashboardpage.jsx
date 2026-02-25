@@ -11,14 +11,20 @@ import { useAuth } from '@clerk/clerk-react';
 const Dashboardpage = () => {
 
 const queryClient = useQueryClient()
-const { getToken } = useAuth();
+const { getToken, isLoaded, userId } = useAuth();
 
 const navigate = useNavigate();
 
 // Mutations
   const mutation = useMutation({
     mutationFn: async (text) => {
+      if (!isLoaded || !userId) {
+        throw new Error("Authentication is still loading. Try again.");
+      }
+
       const token = await getToken();
+      if (!token) throw new Error("Missing auth token. Please sign in again.");
+
       const res = await fetch(apiUrl("/api/chats"), {
         method: 'POST',
         credentials: 'include',
@@ -57,7 +63,7 @@ const navigate = useNavigate();
   const handlesubmit = async (e) => {
   e.preventDefault();
   const text = e.target.text.value;
-  if (!text) return;
+  if (!text || mutation.isPending) return;
 
   mutation.mutate(text)
       
@@ -92,9 +98,10 @@ const navigate = useNavigate();
         <form onSubmit={handlesubmit} >
           <div className="chatbar">
           <span className='plus'><GrAdd /></span>
-          <input type="text" name='text' placeholder='Ask me anything...' /></div>
-          <button><FaCircleArrowUp /> </button>
+          <input type="text" name='text' placeholder='Ask me anything...' disabled={!isLoaded || mutation.isPending} /></div>
+          <button disabled={!isLoaded || mutation.isPending}><FaCircleArrowUp /> </button>
         </form>
+        {mutation.error && <p className="error-message">{mutation.error.message}</p>}
       </div>
    </div>
    </div>

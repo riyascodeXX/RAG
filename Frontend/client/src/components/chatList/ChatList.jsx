@@ -5,12 +5,16 @@ import { apiUrl } from '../../lib/api'
 import { useAuth } from '@clerk/clerk-react'
 
 const ChatList = () => {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, userId } = useAuth();
 
  const { isPending, error, data } = useQuery({
     queryKey: ['userChats'],
     queryFn: async () => {
+      if (!isLoaded || !userId) return [];
+
       const token = await getToken();
+      if (!token) throw new Error("Missing auth token. Please sign in again.");
+
       const res = await fetch(apiUrl("/api/userchats"), {
         credentials: "include",
         headers: {
@@ -40,6 +44,7 @@ const ChatList = () => {
 
       return [];
     },
+    enabled: isLoaded && !!userId,
   })
 
   const chats = Array.isArray(data) ? data : [];

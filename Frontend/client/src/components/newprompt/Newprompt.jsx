@@ -37,12 +37,18 @@ const Newprompt = ({ data }) => {
   }, [data]);
 
   const queryClient = useQueryClient();
-  const { getToken } = useAuth();
+  const { getToken, isLoaded, userId } = useAuth();
 
 // Mutations
   const mutation = useMutation({
     mutationFn: async ({ question: q, answer: a }) => {
+      if (!isLoaded || !userId) {
+        throw new Error("Authentication is still loading. Try again.");
+      }
+
       const token = await getToken();
+      if (!token) throw new Error("Missing auth token. Please sign in again.");
+
       const res = await fetch(apiUrl(`/api/chats/${data._id}`), {
         method: 'PUT',
         credentials: 'include',
@@ -78,6 +84,7 @@ const Newprompt = ({ data }) => {
     },
     onError: (err)=>{
       console.log(err)
+      setError(err?.message || "Failed to save chat.");
     }
   });
 

@@ -7,7 +7,7 @@ import Markdown from 'react-markdown';
 import { apiUrl } from '../../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 const Chatpage = () => {
-const { getToken } = useAuth();
+const { getToken, isLoaded, userId } = useAuth();
   
 const path=useLocation().pathname
 const chatId=path.split("/").pop()
@@ -16,7 +16,11 @@ const chatId=path.split("/").pop()
 const { isPending, error, data } = useQuery({
     queryKey: ['chat',chatId],
     queryFn: async () => {
+      if (!isLoaded || !userId) return null;
+
       const token = await getToken();
+      if (!token) throw new Error("Missing auth token. Please sign in again.");
+
       const res = await fetch(apiUrl(`/api/chats/${chatId}`), {
         credentials: "include",
         headers: {
@@ -41,6 +45,7 @@ const { isPending, error, data } = useQuery({
 
       return payload;
     },
+    enabled: isLoaded && !!userId && !!chatId,
   })
 
   const historyItems = Array.isArray(data?.history) ? data.history : [];
