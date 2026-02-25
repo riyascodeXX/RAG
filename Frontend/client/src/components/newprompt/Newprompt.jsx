@@ -6,6 +6,7 @@ import './newprompt.css';
 import generateResponse from "../../lib/gemini";
 import Markdown from 'react-markdown'
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiUrl } from "../../lib/api";
 const Newprompt = ({ data }) => {
   const [question, setQuestion] = useState('')
   const [answer, setAnswer] = useState('')
@@ -37,7 +38,7 @@ const Newprompt = ({ data }) => {
 // Mutations
   const mutation = useMutation({
     mutationFn: ({ question: q, answer: a }) => {
-      return fetch(`${import.meta.env.VITE_API_URL}/api/chats/${data._id}`, {
+      return fetch(apiUrl(`/api/chats/${data._id}`), {
         method: 'PUT',
         credentials: 'include',
         headers: {

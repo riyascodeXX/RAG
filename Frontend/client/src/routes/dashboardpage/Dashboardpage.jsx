@@ -4,6 +4,7 @@ import { GrAdd } from "react-icons/gr";
 import './dashboardpage.css'
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiUrl } from '../../lib/api';
 
 
 const Dashboardpage = () => {
@@ -15,7 +16,7 @@ const navigate = useNavigate();
 // Mutations
   const mutation = useMutation({
     mutationFn: (text) => {
-      return fetch(`${import.meta.env.VITE_API_URL}/api/chats`, {
+      return fetch(apiUrl("/api/chats"), {
         method: 'POST',
         credentials: 'include',
         headers: {

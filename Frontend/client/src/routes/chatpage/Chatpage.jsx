@@ -4,6 +4,7 @@ import Newprompt from '../../components/newprompt/Newprompt';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
 import Markdown from 'react-markdown';
+import { apiUrl } from '../../lib/api';
 const Chatpage = () => {
   
 const path=useLocation().pathname
@@ -13,7 +14,7 @@ const chatId=path.split("/").pop()
 const { isPending, error, data } = useQuery({
     queryKey: ['chat',chatId],
     queryFn: () =>
-      fetch(`${import.meta.env.VITE_API_URL}/api/chats/${chatId}`,
+      fetch(apiUrl(`/api/chats/${chatId}`),
         {credentials:"include" }).then((res) =>
         res.json(),
       ),

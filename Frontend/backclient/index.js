@@ -14,14 +14,24 @@ import { clerkMiddleware, requireAuth } from '@clerk/express'
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-
-
-
-
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CLIENT_URL_2,
+  process.env.CLIENT_URL_3,
+  "https://rag-coral-nine.vercel.app",
+]
+  .flatMap((value) => (value ? value.split(",") : []))
+  .map((value) => value.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL, "https://rag-coral-nine.vercel.app"],
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 );
@@ -44,6 +54,14 @@ const connect = async () => {
   console.log(userId)
   }
 );*/
+
+app.get("/", (_req, res) => {
+  res.status(200).json({ message: "AMC backend is running" });
+});
+
+app.get("/api/health", (_req, res) => {
+  res.status(200).json({ ok: true });
+});
 
 app.post("/api/chats", requireAuth(), async (req, res) => {
   const userId = req.auth && req.auth.userId;
