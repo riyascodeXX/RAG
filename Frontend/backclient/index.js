@@ -14,23 +14,24 @@ import { clerkMiddleware, requireAuth } from '@clerk/express'
 const PORT = process.env.PORT || 5000;
 const app = express();
 
+import cors from "cors";
+
 const allowedOrigins = [
-  process.env.CLIENT_URL,
-  process.env.CLIENT_URL_2,
-  process.env.CLIENT_URL_3,
+  "http://localhost:5173",
   "https://rag-coral-nine.vercel.app",
-]
-  .flatMap((value) => (value ? value.split(",") : []))
-  .map((value) => value.trim())
-  .filter(Boolean);
+];
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // allow server-to-server / postman
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error(`CORS blocked for origin: ${origin}`));
+
+      return callback(new Error(`CORS blocked: ${origin}`));
     },
     credentials: true,
   })
