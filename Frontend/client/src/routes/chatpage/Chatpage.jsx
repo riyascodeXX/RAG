@@ -3,7 +3,6 @@ import './chatpage.css'
 import Newprompt from '../../components/newprompt/Newprompt';
 import { useQuery } from '@tanstack/react-query';
 import { useLocation } from 'react-router-dom';
-import Markdown from 'react-markdown';
 import { apiUrl } from '../../lib/api';
 import { useAuth } from '@clerk/clerk-react';
 const Chatpage = () => {
@@ -48,8 +47,6 @@ const { isPending, error, data } = useQuery({
     enabled: isLoaded && !!userId && !!chatId,
   })
 
-  const historyItems = Array.isArray(data?.history) ? data.history : [];
-
   return (
     <div className="chatpage">
      <div className="wrapper">
@@ -58,27 +55,7 @@ const { isPending, error, data } = useQuery({
         {isPending
         ?"Loading.."
         :error?"Error loading chat data"
-        :historyItems.map((item, index) => {
-                  const question =
-                    item?.question || (item?.role === "user" ? item?.parts?.[0]?.text : "");
-                  const answer =
-                    item?.answer || (item?.role === "model" ? item?.parts?.[0]?.text : "");
-
-                  return (
-                  <div key={item?._id || item?.id || index}>
-                    {question && (
-                      <div className="message user">{question}</div>
-                    )}
-                    {answer && (
-                      <div className="message">
-                        <Markdown>{answer}</Markdown>
-                      </div>
-                  )}
-                </div>  
-              )})} 
-        
-       
-        {data && <Newprompt data={data}/>}
+        :data && <Newprompt data={data}/>}
         
        </div>
      </div>

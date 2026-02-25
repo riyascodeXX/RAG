@@ -8,9 +8,10 @@ import Markdown from 'react-markdown'
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiUrl } from "../../lib/api";
 import { useAuth } from "@clerk/clerk-react";
+
+const initializedChatIds = new Set();
+
 const Newprompt = ({ data }) => {
-  const [question, setQuestion] = useState('')
-  const [answer, setAnswer] = useState('')
   const [history, setHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -79,8 +80,6 @@ const Newprompt = ({ data }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chat', data._id] });
       if (formref.current) formref.current.reset();
-      setQuestion("");
-      setAnswer("");
     },
     onError: (err)=>{
       console.log(err)
@@ -93,16 +92,36 @@ const Newprompt = ({ data }) => {
     
     setIsLoading(true);
     setError('');
-    if (!isInitial) setQuestion(text);
 
     try {
       const messageId = Date.now();
-      
-      setHistory(prev => [...prev, { 
-        id: messageId, 
-        question: text, 
-        answer: "" 
-      }]);
+
+      setHistory((prev) => {
+        if (isInitial) {
+          const existingIndex = prev.findIndex(
+            (item) => item.question === text && !item.answer
+          );
+
+          if (existingIndex !== -1) {
+            const next = [...prev];
+            next[existingIndex] = {
+              ...next[existingIndex],
+              id: messageId,
+              answer: "",
+            };
+            return next;
+          }
+        }
+
+        return [
+          ...prev,
+          {
+            id: messageId,
+            question: text,
+            answer: "",
+          },
+        ];
+      });
 
       const ans = await generateResponse(text);
       
@@ -118,14 +137,16 @@ const Newprompt = ({ data }) => {
 
         if (i >= ans.length) {
           clearInterval(interval);
-          setAnswer(ans);
-          mutation.mutate({ question: text, answer: ans });
+          mutation.mutate({ question: isInitial ? undefined : text, answer: ans });
         }
       }, 10);
 
     } catch (err) {
       console.log(err);
       setError(err?.message || 'Failed to generate response');
+      if (isInitial && data?._id) {
+        initializedChatIds.delete(data._id);
+      }
       setHistory(prev => prev.map((item, index) => 
         index === prev.length - 1 ? { ...item, answer: "Error: Failed to generate response" } : item
       ));
@@ -143,15 +164,16 @@ const Newprompt = ({ data }) => {
     await add(text, false);
   };
 
-  const hasrun = useRef(false)
   useEffect(()=>{
-    if (!hasrun.current && Array.isArray(data?.history) && data.history.length === 1) {
-      const firstQuestion = data.history[0]?.parts?.[0]?.text || data.history[0]?.question;
-      if (!firstQuestion) return;
-      add(firstQuestion, true);
-      hasrun.current = true;
-    }
-  }, [data]);
+    if (!data?._id || !Array.isArray(data?.history) || data.history.length !== 1) return;
+    if (initializedChatIds.has(data._id)) return;
+
+    const firstQuestion = data.history[0]?.parts?.[0]?.text || data.history[0]?.question;
+    if (!firstQuestion) return;
+
+    initializedChatIds.add(data._id);
+    add(firstQuestion, true);
+  }, [data?._id, data?.history]);
 
   return (
     <>
