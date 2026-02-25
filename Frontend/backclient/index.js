@@ -14,7 +14,7 @@ import { clerkMiddleware, requireAuth } from '@clerk/express'
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-import cors from "cors";
+
 
 const allowedOrigins = [
   "http://localhost:5173",
