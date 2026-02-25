@@ -8,8 +8,7 @@ const userchatschema=new mongoose.Schema({
     chats:[
         {
             _id:{
-                type:String,
-                 type: mongoose.Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.ObjectId,
                 required:true
             },
             title:{

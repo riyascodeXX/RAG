@@ -14,12 +14,16 @@ import { clerkMiddleware, requireAuth } from '@clerk/express'
 const PORT = process.env.PORT || 5000;
 const app = express();
 
-
-
 const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CLIENT_URL_2,
+  process.env.CLIENT_URL_3,
   "http://localhost:5173",
   "https://rag-coral-nine.vercel.app",
-];
+]
+  .flatMap((value) => (value ? value.split(",") : []))
+  .map((value) => value.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
@@ -45,7 +49,8 @@ const connect = async () => {
     await mongoose.connect(process.env.MONGO);
     console.log("connected to mongodb");
   } catch (err) {
-    console.log(err.message);
+    console.log("mongodb connection failed:", err.message);
+    throw err;
   }
 };
 
@@ -61,7 +66,10 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/api/health", (_req, res) => {
-  res.status(200).json({ ok: true });
+  res.status(200).json({
+    ok: true,
+    dbReadyState: mongoose.connection.readyState,
+  });
 });
 
 app.post("/api/chats", requireAuth(), async (req, res) => {
@@ -116,6 +124,9 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
   const userId = req.auth && req.auth.userId;
 
   if (!userId) return res.status(401).json({ message: "Unauthenticated" });
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ message: "Database not connected" });
+  }
 
   try {
     const doc = await Userchat.findOne({ userId });
@@ -123,7 +134,7 @@ app.get("/api/userchats", requireAuth(), async (req, res) => {
     res.status(200).json(chats);
   } catch (err) {
     console.log(err);
-    res.status(500).json({ message: "Error fetching userchats!" });
+    res.status(500).json({ message: `Error fetching userchats: ${err.message}` });
   }
 });
 
@@ -185,9 +196,16 @@ app.use((err, req, res, next) => {
   return res.status(statusCode).json({ message });
 });
 
-app.listen(PORT, () => {
-  connect()
+const startServer = async () => {
+  await connect();
+  app.listen(PORT, () => {
   console.log("server running on " + PORT);
+  });
+};
+
+startServer().catch((err) => {
+  console.error("Failed to start server:", err.message);
+  process.exit(1);
 });
 
 
