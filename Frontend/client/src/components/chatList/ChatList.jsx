@@ -7,12 +7,34 @@ const ChatList = () => {
 
  const { isPending, error, data } = useQuery({
     queryKey: ['userChats'],
-    queryFn: () =>
-      fetch(apiUrl("/api/userchats"),{credentials:"include" }).then((res) =>
-        res.json(),
-      ),
+    queryFn: async () => {
+      const res = await fetch(apiUrl("/api/userchats"), { credentials: "include" });
+      let payload = null;
+
+      try {
+        payload = await res.json();
+      } catch (_err) {
+        payload = null;
+      }
+
+      if (!res.ok) {
+        const message =
+          payload && typeof payload === "object" && "message" in payload
+            ? payload.message
+            : `Failed to load chats (${res.status})`;
+        throw new Error(message);
+      }
+
+      if (Array.isArray(payload)) return payload;
+      if (payload && typeof payload === "object" && Array.isArray(payload.chats)) {
+        return payload.chats;
+      }
+
+      return [];
+    },
   })
 
+  const chats = Array.isArray(data) ? data : [];
 
   return (
     <div className="chatList">
@@ -28,7 +50,7 @@ const ChatList = () => {
         <span>Loading...</span>
         :error?
         <span>Error loading chats</span>
-        :data?.map((chat) => (
+        :chats.map((chat) => (
           <Link key={chat._id} to={`/dashboard/chats/${chat._id}`}>
             {chat.title}
           </Link>

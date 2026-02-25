@@ -23,13 +23,15 @@ const Newprompt = ({ data }) => {
 
   // Initialize history from props
   useEffect(() => {
-    if (data?.history) {
+    if (Array.isArray(data?.history)) {
       const formattedHistory = data.history.map((msg, index) => ({
         id: index,
-        question: msg.role === "user" ? msg.parts?.[0]?.text : "",
-        answer: msg.role === "model" ? msg.parts?.[0]?.text : "",
+        question: msg?.question || (msg?.role === "user" ? msg?.parts?.[0]?.text : ""),
+        answer: msg?.answer || (msg?.role === "model" ? msg?.parts?.[0]?.text : ""),
       }));
       setHistory(formattedHistory);
+    } else {
+      setHistory([]);
     }
   }, [data]);
 
@@ -115,8 +117,10 @@ const Newprompt = ({ data }) => {
 
   const hasrun = useRef(false)
   useEffect(()=>{
-    if (!hasrun.current && data?.history?.length === 1) {
-      add(data.history[0].parts[0].text, true);
+    if (!hasrun.current && Array.isArray(data?.history) && data.history.length === 1) {
+      const firstQuestion = data.history[0]?.parts?.[0]?.text || data.history[0]?.question;
+      if (!firstQuestion) return;
+      add(firstQuestion, true);
       hasrun.current = true;
     }
   }, [data]);

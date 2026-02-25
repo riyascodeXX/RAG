@@ -13,13 +13,31 @@ const chatId=path.split("/").pop()
 
 const { isPending, error, data } = useQuery({
     queryKey: ['chat',chatId],
-    queryFn: () =>
-      fetch(apiUrl(`/api/chats/${chatId}`),
-        {credentials:"include" }).then((res) =>
-        res.json(),
-      ),
+    queryFn: async () => {
+      const res = await fetch(apiUrl(`/api/chats/${chatId}`), {
+        credentials: "include",
+      });
+      let payload = null;
+
+      try {
+        payload = await res.json();
+      } catch (_err) {
+        payload = null;
+      }
+
+      if (!res.ok) {
+        const message =
+          payload && typeof payload === "object" && "message" in payload
+            ? payload.message
+            : `Failed to load chat (${res.status})`;
+        throw new Error(message);
+      }
+
+      return payload;
+    },
   })
-console.log(data)
+
+  const historyItems = Array.isArray(data?.history) ? data.history : [];
 
   return (
     <div className="chatpage">
@@ -29,18 +47,24 @@ console.log(data)
         {isPending
         ?"Loading.."
         :error?"Error loading chat data"
-        :data?.history?.map((item) => (
-                  <div key={item.id}>
-                    {item.question && (
-                      <div className="message user">{item.question}</div>
+        :historyItems.map((item, index) => {
+                  const question =
+                    item?.question || (item?.role === "user" ? item?.parts?.[0]?.text : "");
+                  const answer =
+                    item?.answer || (item?.role === "model" ? item?.parts?.[0]?.text : "");
+
+                  return (
+                  <div key={item?._id || item?.id || index}>
+                    {question && (
+                      <div className="message user">{question}</div>
                     )}
-                    {item.answer && (
+                    {answer && (
                       <div className="message">
-                        <Markdown>{item.answer}</Markdown>
+                        <Markdown>{answer}</Markdown>
                       </div>
                   )}
                 </div>  
-              ))} 
+              )})} 
         
        
         {data && <Newprompt data={data}/>}
